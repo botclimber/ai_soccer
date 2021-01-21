@@ -1,5 +1,4 @@
 import dataset
-import betting
 import tensorflow as tf
 import numpy as np
 import csv
@@ -52,9 +51,16 @@ def main(argv):
 	# data from last 10 games
 	for mode in ['home', 'away']:
 		feature_columns = feature_columns + [
-			tf.feature_column.numeric_column(key='{}-wins'.format(mode)), # wins
-			tf.feature_column.numeric_column(key='{}-draws'.format(mode)), # losses
-			tf.feature_column.numeric_column(key='{}-losses'.format(mode)), # draws
+			
+			tf.feature_column.numeric_column(key='{}-wins-home'.format(mode)), # wins
+			tf.feature_column.numeric_column(key='{}-wins-away'.format(mode)), # wins
+			tf.feature_column.numeric_column(key='{}-losses-home'.format(mode)), # wins
+			tf.feature_column.numeric_column(key='{}-losses-away'.format(mode)), # wins
+			tf.feature_column.numeric_column(key='{}-draws-home'.format(mode)), # wins
+			tf.feature_column.numeric_column(key='{}-draws-away'.format(mode)), # wins
+			#tf.feature_column.numeric_column(key='{}-wins'.format(mode)), # wins
+			#tf.feature_column.numeric_column(key='{}-draws'.format(mode)), # losses
+			#tf.feature_column.numeric_column(key='{}-losses'.format(mode)), # draws
 			tf.feature_column.numeric_column(key='{}-goals'.format(mode)), # goals scored
 			tf.feature_column.numeric_column(key='{}-opposition-goals'.format(mode)), # goals suffered
 			tf.feature_column.numeric_column(key='{}-shots'.format(mode)),
@@ -65,7 +71,7 @@ def main(argv):
 
 	model = tf.estimator.DNNClassifier(
 		model_dir='model/',
-		hidden_units=[15], #[15] (input * 2/3 + output) | if[12,8] first layer 12 neurons second 8
+		hidden_units=[19], #[19] (input * 2/3 + output) | if[12,8] first layer 12 neurons second 8
 		feature_columns=feature_columns,
 		n_classes=3,
 		label_vocabulary=['H', 'D', 'A'],
@@ -75,10 +81,14 @@ def main(argv):
 			l1_regularization_strength=0.001
 	))
 
+	#with open('data.csv', 'w') as f:
+    	#	for key in train_features.keys():
+        #		f.write("%s,%s\n"%(key,train_features[key]))
+
 	with open('training-log.csv', 'w') as stream:
 		csvwriter = csv.writer(stream)
 
-		model.train(input_fn=train_input_fn, steps=50000)
+		model.train(input_fn=train_input_fn, steps=5000)
 		evaluation_result = model.evaluate(input_fn=test_input_fn)
 
 		predictions = list(model.predict(input_fn=test_input_fn))

@@ -49,7 +49,7 @@ class Dataset:
         return list(filter(filter_fn, self.raw_results))
 
     # Calculate team statistics
-    def get_statistics(self, team, date, matches=10):
+    def get_statistics(self, team, date, matches=5):
         recent_results = self.filter(team, date)
 
         if len(recent_results) < matches:
@@ -73,9 +73,15 @@ class Dataset:
             opposition_shots_on_target = int(result['{}ST'.format(opposition_letter)])
 
             return {
-                'wins': 1 if result['FTR'] == team_letter else 0,
-                'draws': 1 if result['FTR'] == 'D' else 0,
-                'losses': 1 if result['FTR'] == opposition_letter else 0,
+		'wins-home': 3 if result['FTR'] == team_letter and team_letter == 'H' else 0,
+		'wins-away': 4 if result['FTR'] == team_letter and team_letter == 'A' else 0,
+		'losses-home': 0.4 if result['FTR'] == opposition_letter and team_letter == 'H' else 0,
+		'losses-away': 0.8 if result['FTR'] == opposition_letter and team_letter == 'A' else 0,
+		'draws-home': 1 if result['FTR'] == 'D' and team_letter == 'H' else 0,
+		'draws-away': 2 if result['FTR'] == 'D' and team_letter == 'A' else 0,
+                #'wins': 1 if result['FTR'] == team_letter else 0,
+                #'draws': 1 if result['FTR'] == 'D' else 0,
+                #'losses': 1 if result['FTR'] == opposition_letter else 0,
                 'goals': goals,
                 'opposition-goals': opposition_goals,
                 'shots': shots,

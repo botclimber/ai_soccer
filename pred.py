@@ -1,10 +1,7 @@
 import dataset
-import betting
 import tensorflow as tf
 import numpy as np
 import csv
-
-TRAINING_SET_FRACTION = 0.95
 
 def main(argv):
 	
