@@ -3,7 +3,7 @@ AI to predict football matches
 
 ## Technical Info:
 - Layes & Neurons
-	- 2 Layers with 19 Neurons
+	- 1 Layer with 19 Neurons
 	
 - Activation function
 	- relu
