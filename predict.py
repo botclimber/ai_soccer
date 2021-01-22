@@ -77,18 +77,18 @@ def main(argv):
 		label_vocabulary=['H', 'D', 'A'],
 		activation_fn = tf.nn.relu, 
 		optimizer=tf.train.ProximalAdagradOptimizer(
-			learning_rate=0.01,
+			learning_rate=0.1,
 			l1_regularization_strength=0.001
 	))
 
-	with open('data.csv', 'w') as f:
-    		for key in train_features.keys():
-        		f.write("%s,%s\n"%(key,train_features[key]))
+	#with open('data.csv', 'w') as f:
+    	#	for key in train_features.keys():
+        #		f.write("%s,%s\n"%(key,train_features[key]))
 
 	with open('training-log.csv', 'w') as stream:
 		csvwriter = csv.writer(stream)
 
-		model.train(input_fn=train_input_fn, steps=50000)
+		model.train(input_fn=train_input_fn, steps=1000)
 		evaluation_result = model.evaluate(input_fn=test_input_fn)
 
 		predictions = list(model.predict(input_fn=test_input_fn))

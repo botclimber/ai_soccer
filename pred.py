@@ -2,12 +2,20 @@ import dataset
 import tensorflow as tf
 import numpy as np
 import csv
+import operator
 
 def main(argv):
+
+	data = dataset.Dataset('predict_data/dataToPred.csv')	
+	predict_data = data.processed_results
 	
-	data = dataset.Dataset('data/book.csv')	
-	test_results = data.processed_results[3430:]
+	def get_result(x):
+		r = ['H', 'D', 'A']
+
+		index = np.argmax(x)
 	
+		return r[index]
+
 	def map_results(results):
 		features = {}
 
@@ -23,10 +31,10 @@ def main(argv):
 
 		return features, features['result'], features['hTeam'], features['aTeam']
 
-	test_features, test_labels, hTeams, aTeams = map_results(test_results)
+	data_features, data_labels, hTeams, aTeams = map_results(predict_data)
 	
 	data = tf.estimator.inputs.numpy_input_fn(
-		x=test_features,
+		x=data_features,
 		#y=test_labels,
 		num_epochs=1,
 		shuffle=False
@@ -36,9 +44,15 @@ def main(argv):
 
 	for mode in ['home', 'away']:
 		feature_columns = feature_columns + [
-			tf.feature_column.numeric_column(key='{}-wins'.format(mode)),
-			tf.feature_column.numeric_column(key='{}-draws'.format(mode)),
-			tf.feature_column.numeric_column(key='{}-losses'.format(mode)),
+			tf.feature_column.numeric_column(key='{}-wins-home'.format(mode)), # wins
+			tf.feature_column.numeric_column(key='{}-wins-away'.format(mode)), # wins
+			tf.feature_column.numeric_column(key='{}-losses-home'.format(mode)), # wins
+			tf.feature_column.numeric_column(key='{}-losses-away'.format(mode)), # wins
+			tf.feature_column.numeric_column(key='{}-draws-home'.format(mode)), # wins
+			tf.feature_column.numeric_column(key='{}-draws-away'.format(mode)), # wins
+			#tf.feature_column.numeric_column(key='{}-wins'.format(mode)),
+			#tf.feature_column.numeric_column(key='{}-draws'.format(mode)),
+			#tf.feature_column.numeric_column(key='{}-losses'.format(mode)),
 			tf.feature_column.numeric_column(key='{}-goals'.format(mode)),
 			tf.feature_column.numeric_column(key='{}-opposition-goals'.format(mode)),
 			tf.feature_column.numeric_column(key='{}-shots'.format(mode)),
@@ -49,7 +63,7 @@ def main(argv):
 
 	model = tf.estimator.DNNClassifier(
 		model_dir='model/',
-		hidden_units=[15],
+		hidden_units=[19],
 		feature_columns=feature_columns,
 		n_classes=3,
 		label_vocabulary=['H', 'D', 'A'],
@@ -58,11 +72,13 @@ def main(argv):
 	predictions = list(model.predict(input_fn=data))
 	
 	i = 0	
+	acc = 0
 	for x in predictions:
-		print("Game: {} vs {} | winner: {} | prediction: {}".format(hTeams[i], aTeams[i], test_labels[i], x['probabilities']))
+		if data_labels[i] == get_result(np.array(x['probabilities'])): acc += 1
+		print("Game: {} vs {} | winner: {} | prediction: {}".format(hTeams[i], aTeams[i], data_labels[i], x['probabilities']))
 		i += 1		
 
-
+	print('Accuracy: {} | correctly perdicted: {} | nr of data: {}'.format(acc/len(data_labels), acc, len(data_labels)))
 
 if __name__ == '__main__':
 	tf.logging.set_verbosity(tf.logging.INFO)

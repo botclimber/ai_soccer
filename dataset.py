@@ -49,7 +49,7 @@ class Dataset:
         return list(filter(filter_fn, self.raw_results))
 
     # Calculate team statistics
-    def get_statistics(self, team, date, matches=5):
+    def get_statistics(self, team, date, matches=25):
         recent_results = self.filter(team, date)
 
         if len(recent_results) < matches:
@@ -75,19 +75,20 @@ class Dataset:
             return {
 		'wins-home': 3 if result['FTR'] == team_letter and team_letter == 'H' else 0,
 		'wins-away': 4 if result['FTR'] == team_letter and team_letter == 'A' else 0,
-		'losses-home': 0.4 if result['FTR'] == opposition_letter and team_letter == 'H' else 0,
-		'losses-away': 0.8 if result['FTR'] == opposition_letter and team_letter == 'A' else 0,
+		'losses-home': -1.5 if result['FTR'] == opposition_letter and team_letter == 'H' else 0,
+		'losses-away': -1 if result['FTR'] == opposition_letter and team_letter == 'A' else 0,
 		'draws-home': 1 if result['FTR'] == 'D' and team_letter == 'H' else 0,
-		'draws-away': 2 if result['FTR'] == 'D' and team_letter == 'A' else 0,
-                #'wins': 1 if result['FTR'] == team_letter else 0,
-                #'draws': 1 if result['FTR'] == 'D' else 0,
-                #'losses': 1 if result['FTR'] == opposition_letter else 0,
-                'goals': goals,
-                'opposition-goals': opposition_goals,
-                'shots': shots,
-                'shots-on-target': shots_on_target,
-                'opposition-shots': opposition_shots,
-                'opposition-shots-on-target': opposition_shots_on_target,
+		'draws-away': 1.5 if result['FTR'] == 'D' and team_letter == 'A' else 0,
+		#'wins': 1 if result['FTR'] == team_letter else 0,
+		#'draws': 1 if result['FTR'] == 'D' else 0,
+		#'losses': 1 if result['FTR'] == opposition_letter else 0,
+		'goals': goals,
+		'opposition-goals': opposition_goals*(-1),
+		'shots': (shots/2.5) if shots > 0 else 0,
+		'shots-on-target': (shots_on_target/2) if shots_on_target > 0 else 0,
+		'opposition-shots': (opposition_shots/2.5)*(-1) if opposition_shots > 0 else 0,
+		'opposition-shots-on-target': (opposition_shots_on_target/2)*(-1) if opposition_shots_on_target > 0 else 0,	
+		
             }
 
         def reduce_fn(x, y):
