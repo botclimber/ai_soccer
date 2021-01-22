@@ -81,14 +81,14 @@ def main(argv):
 			l1_regularization_strength=0.001
 	))
 
-	#with open('data.csv', 'w') as f:
-    	#	for key in train_features.keys():
-        #		f.write("%s,%s\n"%(key,train_features[key]))
+	with open('data.csv', 'w') as f:
+    		for key in train_features.keys():
+        		f.write("%s,%s\n"%(key,train_features[key]))
 
 	with open('training-log.csv', 'w') as stream:
 		csvwriter = csv.writer(stream)
 
-		model.train(input_fn=train_input_fn, steps=5000)
+		model.train(input_fn=train_input_fn, steps=50000)
 		evaluation_result = model.evaluate(input_fn=test_input_fn)
 
 		predictions = list(model.predict(input_fn=test_input_fn))

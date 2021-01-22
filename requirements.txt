@@ -1,0 +1,7 @@
+### Requirements without version specified
+
+tensorflow
+numpy
+
+## if not working try to install with specified version
+# tensorflow==1.15
