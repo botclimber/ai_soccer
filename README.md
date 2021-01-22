@@ -1,25 +1,25 @@
 # ai_soccer
 AI to predict football matches
 
-Technical Info:
-	- Layes & Neurons:
-		- 2 Layers with 19 Neurons
+## Technical Info:
+- Layes & Neurons
+	- 2 Layers with 19 Neurons
 	
-	- Activation function:
-		- relu
+- Activation function
+	- relu
 	
-	- Optimizer:
-		- Adagrad
+- Optimizer
+	- Adagrad
 
-	- Learning rate:	
-		- 0.01
+- Learning rate	
+	- 0.01
 	
-	- steps
-		- 10.000
+- steps
+	- 10.000
 
-	- classes:
-		- 3
-		- ['H', 'D', 'A']
+- classes
+	- 3
+	- ['H', 'D', 'A']
 
 ## Dataset
 
