@@ -49,7 +49,7 @@ class Dataset:
         return list(filter(filter_fn, self.raw_results))
 
     # Calculate team statistics
-    def get_statistics(self, team, date, matches=25):
+    def get_statistics(self, team, date, matches=15):
         recent_results = self.filter(team, date)
 
         if len(recent_results) < matches:

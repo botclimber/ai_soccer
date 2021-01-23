@@ -2,17 +2,25 @@ import dataset
 import tensorflow as tf
 import numpy as np
 import csv
+import operator
 
-TRAINING_SET_FRACTION = 0.95
+TRAINING_SET_FRACTION = 0.90
 
 
 def main(argv):
-	data = dataset.Dataset('data/book.csv')
+	data_to_predict = dataset.Dataset('data/bookPT.csv')
+	data = dataset.Dataset('data/bookEN.csv')
 
 	train_results_len = int(TRAINING_SET_FRACTION * len(data.processed_results))
 	train_results = data.processed_results[:train_results_len]
 	test_results = data.processed_results[train_results_len:]
 
+	dp = data_to_predict.processed_results
+	def get_result(x):
+		r = ['H', 'D', 'A']
+		index = np.argmax(x)
+		return r[index]
+	
 	def map_results(results):
 		features = {}
 
@@ -31,12 +39,21 @@ def main(argv):
 	train_features, train_labels, hTeams, aTeams = map_results(train_results)
 	test_features, test_labels, hTeams, aTeams = map_results(test_results)
 
+	dp_features, dp_labels, dp_hTeams, dp_aTeams = map_results(dp)
+	
+	dp_input_fn = tf.estimator.inputs.numpy_input_fn(
+		x=dp_features,
+		#y=train_labels,
+		num_epochs=1,
+		shuffle=False
+	)
+	
 	train_input_fn = tf.estimator.inputs.numpy_input_fn(
 		x=train_features,
 		y=train_labels,
 		batch_size=500,
 		num_epochs=None,
-		shuffle=True
+		shuffle=False
 	)
 
 	test_input_fn = tf.estimator.inputs.numpy_input_fn(
@@ -71,24 +88,25 @@ def main(argv):
 
 	model = tf.estimator.DNNClassifier(
 		model_dir='model/',
-		hidden_units=[19], #[19] (input * 2/3 + output) | if[12,8] first layer 12 neurons second 8
+		hidden_units=[19, 12], #[19] (input * 2/3 + output) | if[12,8] first layer 12 neurons second 8
 		feature_columns=feature_columns,
 		n_classes=3,
 		label_vocabulary=['H', 'D', 'A'],
 		activation_fn = tf.nn.relu, 
 		optimizer=tf.train.ProximalAdagradOptimizer(
-			learning_rate=0.1,
+			learning_rate=0.01,
 			l1_regularization_strength=0.001
 	))
 
 	#with open('data.csv', 'w') as f:
     	#	for key in train_features.keys():
         #		f.write("%s,%s\n"%(key,train_features[key]))
-
+	
+	print('train nr data: {} | test nr data: {}'.format(len(train_labels), len(test_labels)))
 	with open('training-log.csv', 'w') as stream:
 		csvwriter = csv.writer(stream)
 
-		model.train(input_fn=train_input_fn, steps=1000)
+		model.train(input_fn=train_input_fn, steps=200)
 		evaluation_result = model.evaluate(input_fn=test_input_fn)
 
 		predictions = list(model.predict(input_fn=test_input_fn))
@@ -97,6 +115,18 @@ def main(argv):
 		for x in predictions:
 			print("Game: {} vs {} | winner: {} | prediction: {}".format(hTeams[i], aTeams[i], test_labels[i], x['probabilities']))
 			i += 1		
+	
+		pred_data = list(model.predict(input_fn=dp_input_fn))
+		
+		i = 0
+		acc = 0
+		for x in pred_data:
+			pred = get_result(np.array(x['probabilities']))
+			if dp_labels[i] == pred: acc += 1
+			print("Game: {} vs {} | actual winner: {} - predicted winner: {} | probabilities: {}".format(dp_hTeams[i], dp_aTeams[i], dp_labels[i], pred, x['probabilities']))
+			i += 1
+
+		print('Accuracy: {} | correctly perdicted: {} | nr of data: {}'.format(acc/len(dp_labels), acc, len(dp_labels)))	
 
 		csvwriter.writerow([evaluation_result['accuracy'], evaluation_result['average_loss']])
 
