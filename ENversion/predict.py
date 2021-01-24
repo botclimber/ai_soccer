@@ -3,6 +3,7 @@ import tensorflow as tf
 import numpy as np
 import csv
 import operator
+import matplotlib.pyplot as plt
 
 TRAINING_SET_FRACTION = 0.90
 
@@ -106,8 +107,54 @@ def main(argv):
 	with open('training-log.csv', 'w') as stream:
 		csvwriter = csv.writer(stream)
 
-		model.train(input_fn=train_input_fn, steps=200)
-		evaluation_result = model.evaluate(input_fn=test_input_fn)
+		epochs = 50
+		eval_data = []
+		for x in range(1, epochs):
+
+			train = model.train(input_fn=train_input_fn, steps=100)
+			evaluation_result = model.evaluate(input_fn=test_input_fn)
+			eval_data.append(evaluation_result)
+
+
+		accuracy = []
+		loss = []
+		for x in eval_data:
+			accuracy.append(x['accuracy'])
+			loss.append(x['loss'])
+
+		fig, axes = plt.subplots(2, sharex=True, figsize=(12, 8))
+		fig.suptitle('England Training Metrics')
+
+		axes[0].set_ylabel("Loss", fontsize=14)
+		axes[0].plot(loss)
+
+		axes[1].set_ylabel("Accuracy", fontsize=14)
+		axes[1].set_xlabel("Epoch", fontsize=14)
+		axes[1].plot(accuracy)
+		plt.show()	
+
+		labels = []
+		home_features = []
+		away_features = []
+
+		for x in test_labels:
+			if x == 'H': labels.append('red')
+			elif x == 'D': labels.append('black')
+			elif x == 'A': labels.append('blue')
+
+		for x in range(0, len(test_features['result'])):
+			home_features.append(test_features['home-wins-home'][x]+test_features['home-wins-away'][x]+test_features['home-losses-home'][x]+test_features['home-losses-away'][x]+test_features['home-draws-home'][x]+test_features['home-draws-away'][x]+test_features['home-shots'][x]+test_features['home-opposition-shots'][x]+test_features['home-goals'][x]+test_features['home-opposition-goals'][x]+test_features['home-shots-on-target'][x]+test_features['home-opposition-shots-on-target'][x])
+
+			away_features.append(test_features['away-wins-home'][x]+test_features['away-wins-away'][x]+test_features['away-losses-home'][x]+test_features['away-losses-away'][x]+test_features['away-draws-home'][x]+test_features['away-draws-away'][x]+test_features['away-shots'][x]+test_features['away-opposition-shots'][x]+test_features['away-goals'][x]+test_features['away-opposition-goals'][x]+test_features['away-shots-on-target'][x]+test_features['away-opposition-shots-on-target'][x])
+
+		print(np.array(home_features))
+		print(np.array(away_features))
+		print(np.array(labels))
+
+		plt.scatter(home_features, away_features, c=labels, cmap='viridis')
+		plt.xlabel("home features")
+		plt.ylabel("away features")
+		plt.show()
 
 		predictions = list(model.predict(input_fn=test_input_fn))
 		
