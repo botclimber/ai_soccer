@@ -9,7 +9,7 @@ TRAINING_SET_FRACTION = 0.90
 
 def main(argv):
 	data_to_predict = dataset.Dataset('data/booki.csv')
-	data = dataset.Dataset('data/bookPT.csv')
+	data = dataset.Dataset('data/bookEN.csv')
 
 	train_results_len = int(TRAINING_SET_FRACTION * len(data.processed_results))
 	train_results = data.processed_results[:train_results_len]
@@ -43,7 +43,7 @@ def main(argv):
 	
 	dp_input_fn = tf.estimator.inputs.numpy_input_fn(
 		x=dp_features,
-		#y=train_labels,
+		#y=dp_labels,
 		num_epochs=1,
 		shuffle=False
 	)
@@ -65,7 +65,7 @@ def main(argv):
 
 	feature_columns = []
 
-	# data from last 20 games
+	# data from last 10 games
 	for mode in ['home', 'away']:
 		feature_columns = feature_columns + [
 			
@@ -98,19 +98,15 @@ def main(argv):
 			l1_regularization_strength=0.001
 	))
 
-	#with open('test_data.csv', 'w') as f:
-    	#	for key in test_features.keys():
-        #		f.write("%s,%s\n"%(key,test_features[key]))
+	#with open('data.csv', 'w') as f:
+    	#	for key in train_features.keys():
+        #		f.write("%s,%s\n"%(key,train_features[key]))
 	
-	#with open('dp_data.csv', 'w') as f:
-    	#	for key in dp_features.keys():
-        #		f.write("%s,%s\n"%(key,dp_features[key]))
-
 	print('train nr data: {} | test nr data: {}'.format(len(train_labels), len(test_labels)))
 	with open('training-log.csv', 'w') as stream:
 		csvwriter = csv.writer(stream)
 
-		model.train(input_fn=train_input_fn, steps=5000)
+		model.train(input_fn=train_input_fn, steps=200)
 		evaluation_result = model.evaluate(input_fn=test_input_fn)
 
 		predictions = list(model.predict(input_fn=test_input_fn))
@@ -121,10 +117,10 @@ def main(argv):
 			pred = get_result(np.array(x['probabilities']))
 			if test_labels[i] == pred: acc += 1
 			print("Game: {} vs {} | actual winner: {} - predicted winner: {} | prediction: {}".format(hTeams[i], aTeams[i], test_labels[i], pred, x['probabilities']))
-			i += 1		
+			i += 1
+
+		print('Accuracy: {} | correctly perdicted: {} | nr of data: {}'.format(acc/len(test_labels), acc, len(test_labels)))
 	
-		print('Accuracy: {} | correctly perdicted: {} | nr of data: {}'.format(acc/len(test_labels), acc, len(test_labels)))	
-		
 		pred_data = list(model.predict(input_fn=dp_input_fn))
 		
 		i = 0

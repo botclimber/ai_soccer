@@ -3,7 +3,7 @@ AI to predict football matches
 
 ## Technical Info:
 - Layes & Neurons
-	- 1 Layer with 19 Neurons
+	- 2 Layer first with 19 Neurons and second with 12
 	
 - Activation function
 	- relu
@@ -15,7 +15,7 @@ AI to predict football matches
 	- 0.01
 	
 - steps
-	- 10.000
+	- 5000
 
 - classes
 	- 3
@@ -23,8 +23,22 @@ AI to predict football matches
 
 ## Dataset
 
-Our dataset its composed by 24 variable inputs. 
+Our dataset its composed by 24 variable inputs. This variables are the sum of last recent 20 games. 
 ![Image of api_doc](https://github.com/botclimber/ai_soccer/blob/main/img/dataset_img.png)
+
+## predict
+
+In our predictions we get diff accuracy values, but average always around 50%.
+
+- Italian League:
+![Image of api_doc](https://github.com/botclimber/ai_soccer/blob/main/img/ITtest.png)
+
+- Premier League:
+![Image of api_doc](https://github.com/botclimber/ai_soccer/blob/main/img/ENtest.png)
+
+- Portuguese League:
+![Image of api_doc](https://github.com/botclimber/ai_soccer/blob/main/img/PTtest.png)
+![Image of api_doc](https://github.com/botclimber/ai_soccer/blob/main/img/predPT.png)
 
 
 ## How to use
