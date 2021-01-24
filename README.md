@@ -24,6 +24,14 @@ AI to predict football matches
 ## Dataset
 
 Our dataset its composed by 24 variable inputs. This variables are the sum of last recent 20 games. 
+- relevant weights: {} = ['home', 'away']
+	- {}-wins-home -> 3
+	- {}-wins-away -> 4
+	- {}-losses-home -> -1.5
+	- {}-losses-away -> -1
+	- {}-draws-home -> 1
+	- draws-away -> 1.5
+
 ![Image of api_doc](https://github.com/botclimber/ai_soccer/blob/main/img/dataset_img.png)
 
 ## predict
